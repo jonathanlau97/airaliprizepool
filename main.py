@@ -87,16 +87,21 @@ def apply_custom_css():
             background: rgba(255, 255, 255, 0.18);
         }
         
-        .top-card {
+        /* Podium ladder cards */
+        .podium-card {
             text-align: center;
-            min-height: 200px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-end;
+            padding-bottom: 1.5rem;
         }
         
+        .rank-1 { min-height: 280px; }
+        .rank-2 { min-height: 240px; }
+        .rank-3 { min-height: 200px; }
+        
         .other-card {
-            min-height: 140px;
+            min-height: 120px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -124,16 +129,16 @@ def apply_custom_css():
             text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
         
-        /* Responsive grid adjustments */
+        /* Responsive adjustments */
         @media (max-width: 768px) {
             .glass-card {
                 padding: 1.25rem;
             }
-            .top-card {
-                min-height: 180px;
-            }
+            .rank-1 { min-height: 240px; }
+            .rank-2 { min-height: 200px; }
+            .rank-3 { min-height: 170px; }
             .other-card {
-                min-height: 120px;
+                min-height: 110px;
             }
         }
     </style>
@@ -168,7 +173,7 @@ def main():
     
     # Header
     st.markdown("""
-    <div style='text-align: center; padding: 1.5rem 0;'>
+    <div style='text-align: center; padding: 1.5rem 0 2rem 0;'>
         <h1 style='font-size: 2.75rem; font-weight: 700; margin: 0;'>
             Airali : Crew Sales Performance
         </h1>
@@ -199,26 +204,55 @@ def main():
             
             # Carrier header
             st.markdown(f"""
-            <h2 style='font-size: 1.75rem; font-weight: 600; margin-bottom: 1.25rem; text-align: center;'>
+            <h2 style='font-size: 1.75rem; font-weight: 600; margin-bottom: 1.5rem; text-align: center;'>
                 ✈️ {carrier}
             </h2>
             """, unsafe_allow_html=True)
             
-            # Top 3
+            # Top 3 in podium ladder layout (2nd, 1st, 3rd order)
             top_3 = carrier_data.head(3)
-            medals = ['🥇', '🥈', '🥉']
             
-            for idx, (_, row) in enumerate(top_3.iterrows()):
-                st.markdown(f"""
-                <div class="glass-card top-card">
-                    <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">{medals[idx]}</div>
-                    <div style="font-size: 1.15rem; font-weight: 600; margin-bottom: 0.25rem;">{row['Crew_Name']}</div>
-                    <div style="font-size: 0.8rem; opacity: 0.75; margin-bottom: 0.75rem;">{row['Crew_ID']}</div>
-                    <div style="font-size: 0.7rem; text-transform: uppercase; opacity: 0.65; letter-spacing: 0.05em;">Sales</div>
-                    <div style="font-size: 1.85rem; font-weight: 700;">{int(row['crew_sold_quantity']):,}</div>
-                </div>
-                """, unsafe_allow_html=True)
-                st.markdown("<div style='height: 1rem;'></div>", unsafe_allow_html=True)
+            if len(top_3) >= 3:
+                # Create podium order: 2nd, 1st, 3rd
+                podium_order = [1, 0, 2]  # indices for 2nd, 1st, 3rd place
+                medals = ['🥇', '🥈', '🥉']
+                rank_classes = ['rank-1', 'rank-2', 'rank-3']
+                
+                # Display in 3 columns for ladder effect
+                podium_cols = st.columns(3)
+                
+                for col_idx, rank_idx in enumerate(podium_order):
+                    if rank_idx < len(top_3):
+                        row = top_3.iloc[rank_idx]
+                        with podium_cols[col_idx]:
+                            st.markdown(f"""
+                            <div class="glass-card podium-card {rank_classes[rank_idx]}">
+                                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">{medals[rank_idx]}</div>
+                                <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem;">{row['Crew_Name']}</div>
+                                <div style="font-size: 0.75rem; opacity: 0.75; margin-bottom: 0.75rem;">{row['Crew_ID']}</div>
+                                <div style="font-size: 0.65rem; text-transform: uppercase; opacity: 0.65; letter-spacing: 0.05em;">Sales</div>
+                                <div style="font-size: 1.75rem; font-weight: 700;">{int(row['crew_sold_quantity']):,}</div>
+                            </div>
+                            """, unsafe_allow_html=True)
+                
+                st.markdown("<div style='height: 1.5rem;'></div>", unsafe_allow_html=True)
+            
+            elif len(top_3) > 0:
+                # Fallback for less than 3 entries
+                medals = ['🥇', '🥈', '🥉']
+                rank_classes = ['rank-1', 'rank-2', 'rank-3']
+                
+                for idx, (_, row) in enumerate(top_3.iterrows()):
+                    st.markdown(f"""
+                    <div class="glass-card podium-card {rank_classes[idx]}">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">{medals[idx]}</div>
+                        <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem;">{row['Crew_Name']}</div>
+                        <div style="font-size: 0.75rem; opacity: 0.75; margin-bottom: 0.75rem;">{row['Crew_ID']}</div>
+                        <div style="font-size: 0.65rem; text-transform: uppercase; opacity: 0.65; letter-spacing: 0.05em;">Sales</div>
+                        <div style="font-size: 1.75rem; font-weight: 700;">{int(row['crew_sold_quantity']):,}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    st.markdown("<div style='height: 1rem;'></div>", unsafe_allow_html=True)
             
             # Next 7
             next_7 = carrier_data.iloc[3:10]
@@ -233,13 +267,13 @@ def main():
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <span class="rank-badge">{rank}</span>
                             <div style="flex: 1; min-width: 0;">
-                                <div style="font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{crew['Crew_Name']}</div>
-                                <div style="font-size: 0.75rem; opacity: 0.7;">{crew['Crew_ID']}</div>
+                                <div style="font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{crew['Crew_Name']}</div>
+                                <div style="font-size: 0.7rem; opacity: 0.7;">{crew['Crew_ID']}</div>
                             </div>
                         </div>
-                        <div style="text-align: right; margin-top: 0.75rem;">
-                            <div style="font-size: 1.35rem; font-weight: 700;">{int(crew['crew_sold_quantity']):,}</div>
-                            <div style="font-size: 0.7rem; opacity: 0.65;">bottles</div>
+                        <div style="text-align: right; margin-top: 0.5rem;">
+                            <div style="font-size: 1.25rem; font-weight: 700;">{int(crew['crew_sold_quantity']):,}</div>
+                            <div style="font-size: 0.65rem; opacity: 0.65;">bottles</div>
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
@@ -247,5 +281,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
