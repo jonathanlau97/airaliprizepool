@@ -7,8 +7,8 @@ from io import StringIO
 # CONFIGURATION - UPDATE THESE URLS
 # ============================================
 CSV_URL = 'https://raw.githubusercontent.com/jonathanlau97/ccdprizepool/main/airali_sales.csv'
-DESKTOP_BG_URL = 'https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/desktop-bg.jpg'
-MOBILE_BG_URL = 'https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/mobile-bg.jpg'
+#DESKTOP_BG_URL = 'https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/desktop-bg.jpg'
+#MOBILE_BG_URL = 'https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/mobile-bg.jpg'
 # ============================================
 
 # --- Page Configuration ---
@@ -310,3 +310,4 @@ def main():
 if __name__ == "__main__":
 
     main()
+
