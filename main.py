@@ -26,7 +26,7 @@ def apply_background_css(desktop_bg_url, mobile_bg_url):
         bg_css = f"""
         <style>
             .stApp {{
-                background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{desktop_bg_url}');
+                background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('{desktop_bg_url}');
                 background-size: cover;
                 background-position: center;
                 background-repeat: no-repeat;
@@ -36,7 +36,7 @@ def apply_background_css(desktop_bg_url, mobile_bg_url):
             
             @media (max-width: 768px) {{
                 .stApp {{
-                    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{mobile_bg_url}');
+                    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('{mobile_bg_url}');
                     background-attachment: scroll;
                 }}
             }}
@@ -61,83 +61,79 @@ def apply_custom_css():
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
         
+        /* Remove default streamlit padding */
+        .block-container {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        
         /* Glassmorphism cards */
         .glass-card {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 1.25rem;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
             color: white;
             transition: all 0.3s ease;
+            height: 100%;
         }
         
         .glass-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.35);
+            background: rgba(255, 255, 255, 0.18);
         }
         
-        .carrier-section {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
+        .top-card {
+            text-align: center;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .other-card {
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         
         .rank-badge {
             background: rgba(255, 255, 255, 0.25);
             border-radius: 50%;
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            font-size: 0.875rem;
-        }
-        
-        .crew-name {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin: 0.5rem 0 0.25rem 0;
-        }
-        
-        .crew-id {
-            font-size: 0.8rem;
-            opacity: 0.8;
-        }
-        
-        .sales-value {
-            font-size: 1.75rem;
             font-weight: 700;
-            margin-top: 0.75rem;
+            font-size: 0.95rem;
         }
         
-        .sales-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            opacity: 0.7;
-            letter-spacing: 0.05em;
-        }
-        
-        h1, h2, h3 {
+        h1 {
             color: white !important;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
         
+        h2 {
+            color: white !important;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Responsive grid adjustments */
         @media (max-width: 768px) {
             .glass-card {
-                padding: 1rem;
+                padding: 1.25rem;
             }
-            .crew-name {
-                font-size: 1rem;
+            .top-card {
+                min-height: 180px;
             }
-            .sales-value {
-                font-size: 1.5rem;
+            .other-card {
+                min-height: 120px;
             }
         }
     </style>
@@ -165,45 +161,6 @@ def process_sales_data(df):
     
     return aggregated
 
-# --- Render Top 3 Scorecard ---
-def render_top_scorecard(rank, crew_name, crew_id, sales):
-    medals = {1: '🥇', 2: '🥈', 3: '🥉'}
-    medal = medals.get(rank, '')
-    
-    card_html = f"""
-    <div class="glass-card">
-        <div style="text-align: center;">
-            <div style="font-size: 2rem; margin-bottom: 0.5rem;">{medal}</div>
-            <div class="crew-name">{crew_name}</div>
-            <div class="crew-id">{crew_id}</div>
-            <div class="sales-label" style="margin-top: 0.75rem;">Total Sales</div>
-            <div class="sales-value">{sales:,}</div>
-        </div>
-    </div>
-    """
-    
-    return card_html
-
-# --- Render Other Scorecard ---
-def render_other_scorecard(rank, crew_name, crew_id, sales):
-    card_html = f"""
-    <div class="glass-card">
-        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
-            <span class="rank-badge">{rank}</span>
-            <div style="flex: 1; min-width: 0;">
-                <div style="font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{crew_name}</div>
-                <div style="font-size: 0.75rem; opacity: 0.75;">{crew_id}</div>
-            </div>
-        </div>
-        <div style="text-align: right; margin-top: 0.5rem;">
-            <div style="font-size: 1.25rem; font-weight: 700;">{sales:,}</div>
-            <div style="font-size: 0.7rem; opacity: 0.7;">bottles</div>
-        </div>
-    </div>
-    """
-    
-    return card_html
-
 # --- Main App ---
 def main():
     apply_background_css(DESKTOP_BG_URL, MOBILE_BG_URL)
@@ -211,11 +168,10 @@ def main():
     
     # Header
     st.markdown("""
-    <div style='text-align: center; padding: 2rem 0 1rem 0;'>
-        <h1 style='font-size: 2.5rem; font-weight: 700; margin-bottom: 0.25rem;'>
+    <div style='text-align: center; padding: 1.5rem 0;'>
+        <h1 style='font-size: 2.75rem; font-weight: 700; margin: 0;'>
             Flight Crew Prize Pool
         </h1>
-        <p style='font-size: 1rem; opacity: 0.85; color: white;'>Top Performers</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -223,7 +179,7 @@ def main():
     df, error = load_csv_from_github(CSV_URL)
     
     if error:
-        st.error(f"Error loading data: {error}")
+        st.error(f"Error: {error}")
         return
     
     if df is None or df.empty:
@@ -232,56 +188,62 @@ def main():
     
     # Process data
     processed_df = process_sales_data(df)
-    carriers = processed_df['Airline_Code'].unique()
+    carriers = sorted(processed_df['Airline_Code'].unique())
     
-    # Display each carrier
-    for carrier in carriers:
-        carrier_data = processed_df[processed_df['Airline_Code'] == carrier].reset_index(drop=True)
-        
-        st.markdown(f"""
-        <div class="carrier-section">
-            <h2 style='font-size: 1.5rem; font-weight: 600; margin: 0 0 1.25rem 0;'>✈️ {carrier}</h2>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Top 3 in one row
-        if len(carrier_data) >= 1:
+    # Display carriers side by side
+    carrier_cols = st.columns(len(carriers))
+    
+    for carrier_idx, carrier in enumerate(carriers):
+        with carrier_cols[carrier_idx]:
+            carrier_data = processed_df[processed_df['Airline_Code'] == carrier].reset_index(drop=True)
+            
+            # Carrier header
+            st.markdown(f"""
+            <h2 style='font-size: 1.75rem; font-weight: 600; margin-bottom: 1.25rem; text-align: center;'>
+                ✈️ {carrier}
+            </h2>
+            """, unsafe_allow_html=True)
+            
+            # Top 3
             top_3 = carrier_data.head(3)
-            cols = st.columns(3)
+            medals = ['🥇', '🥈', '🥉']
             
             for idx, (_, row) in enumerate(top_3.iterrows()):
-                with cols[idx]:
-                    card_html = render_top_scorecard(
-                        rank=idx + 1,
-                        crew_name=row['Crew_Name'],
-                        crew_id=row['Crew_ID'],
-                        sales=int(row['crew_sold_quantity'])
-                    )
-                    st.markdown(card_html, unsafe_allow_html=True)
-        
-        # Next 7 in grid
-        if len(carrier_data) > 3:
-            st.markdown("<div style='height: 1.5rem;'></div>", unsafe_allow_html=True)
+                st.markdown(f"""
+                <div class="glass-card top-card">
+                    <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">{medals[idx]}</div>
+                    <div style="font-size: 1.15rem; font-weight: 600; margin-bottom: 0.25rem;">{row['Crew_Name']}</div>
+                    <div style="font-size: 0.8rem; opacity: 0.75; margin-bottom: 0.75rem;">{row['Crew_ID']}</div>
+                    <div style="font-size: 0.7rem; text-transform: uppercase; opacity: 0.65; letter-spacing: 0.05em;">Sales</div>
+                    <div style="font-size: 1.85rem; font-weight: 700;">{int(row['crew_sold_quantity']):,}</div>
+                </div>
+                """, unsafe_allow_html=True)
+                st.markdown("<div style='height: 1rem;'></div>", unsafe_allow_html=True)
             
+            # Next 7
             next_7 = carrier_data.iloc[3:10]
             
-            # 4 columns for desktop, responsive for mobile
-            for i in range(0, len(next_7), 4):
-                row_data = next_7.iloc[i:i+4]
-                cols = st.columns(4)
+            if len(next_7) > 0:
+                st.markdown("<div style='height: 0.5rem;'></div>", unsafe_allow_html=True)
                 
-                for idx, (_, crew) in enumerate(row_data.iterrows()):
-                    with cols[idx]:
-                        rank = crew.name + 1
-                        card_html = render_other_scorecard(
-                            rank=rank,
-                            crew_name=crew['Crew_Name'],
-                            crew_id=crew['Crew_ID'],
-                            sales=int(crew['crew_sold_quantity'])
-                        )
-                        st.markdown(card_html, unsafe_allow_html=True)
-        
-        st.markdown("<div style='height: 2rem;'></div>", unsafe_allow_html=True)
+                for _, crew in next_7.iterrows():
+                    rank = crew.name + 1
+                    st.markdown(f"""
+                    <div class="glass-card other-card">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <span class="rank-badge">{rank}</span>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{crew['Crew_Name']}</div>
+                                <div style="font-size: 0.75rem; opacity: 0.7;">{crew['Crew_ID']}</div>
+                            </div>
+                        </div>
+                        <div style="text-align: right; margin-top: 0.75rem;">
+                            <div style="font-size: 1.35rem; font-weight: 700;">{int(crew['crew_sold_quantity']):,}</div>
+                            <div style="font-size: 0.7rem; opacity: 0.65;">bottles</div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    st.markdown("<div style='height: 0.75rem;'></div>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
