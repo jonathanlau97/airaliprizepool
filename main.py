@@ -170,7 +170,7 @@ def main():
     st.markdown("""
     <div style='text-align: center; padding: 1.5rem 0;'>
         <h1 style='font-size: 2.75rem; font-weight: 700; margin: 0;'>
-            Flight Crew Prize Pool
+            Airali : Crew Sales Performance
         </h1>
     </div>
     """, unsafe_allow_html=True)
@@ -247,4 +247,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
