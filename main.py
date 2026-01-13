@@ -13,7 +13,7 @@ MOBILE_BG_URL = 'https://raw.githubusercontent.com/jonathanlau97/airaliprizepool
 
 # --- Page Configuration ---
 st.set_page_config(
-    page_title="Flight Crew Prize Pool",
+    page_title="Airali : Crew Sales Performance",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -247,3 +247,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
