@@ -161,18 +161,42 @@ def apply_custom_css():
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .glass-card {
-                padding: 1.25rem;
+                padding: 1rem;
             }
-            .rank-1 { min-height: 220px; }
-            .rank-2 { min-height: 190px; }
-            .rank-3 { min-height: 160px; }
+            .rank-1 { 
+                min-height: 200px;
+                margin-bottom: 1rem;
+            }
+            .rank-2 { 
+                min-height: 180px;
+                margin-bottom: 1rem;
+            }
+            .rank-3 { 
+                min-height: 160px;
+                margin-bottom: 1rem;
+            }
             .other-card {
-                min-height: 110px;
+                min-height: 100px;
+                margin-bottom: 0.75rem;
             }
             .podium-rank {
                 width: 36px;
                 height: 36px;
                 font-size: 1.1rem;
+                top: -12px;
+            }
+            
+            /* Add spacing between columns on mobile */
+            [data-testid="column"] {
+                padding: 0 0.5rem !important;
+            }
+            
+            /* Adjust font sizes for mobile */
+            .podium-card > div:nth-child(2) {
+                font-size: 1.1rem !important;
+            }
+            .podium-card > div:nth-child(4) {
+                font-size: 1.6rem !important;
             }
         }
     </style>
@@ -275,8 +299,8 @@ def main():
                 # Create podium order: 2nd, 1st, 3rd
                 podium_order = [1, 0, 2]  # indices for 2nd, 1st, 3rd place
                 
-                # Display in 3 columns for podium effect
-                podium_cols = st.columns(3)
+                # Display in 3 columns for podium effect with custom gap
+                podium_cols = st.columns([1, 1, 1], gap="medium")
                 
                 for col_idx, rank_idx in enumerate(podium_order):
                     if rank_idx < len(top_3):
