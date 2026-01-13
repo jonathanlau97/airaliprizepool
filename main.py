@@ -296,8 +296,8 @@ def main():
             top_3 = carrier_data.head(3)
             
             if len(top_3) >= 3:
-                # Create podium order: 2nd, 1st, 3rd
-                podium_order = [1, 0, 2]  # indices for 2nd, 1st, 3rd place
+                # Create podium order: 1st, 2nd, 3rd (left to right)
+                podium_order = [0, 1, 2]  # indices for 1st, 2nd, 3rd place
                 
                 # Display in 3 columns for podium effect with custom gap
                 podium_cols = st.columns([1, 1, 1], gap="medium")
