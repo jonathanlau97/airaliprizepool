@@ -20,15 +20,13 @@ st.set_page_config(
 
 # --- Background CSS ---
 def apply_background_css(desktop_bg_url, mobile_bg_url):
-    # Check if URLs are configured
     use_custom_bg = not desktop_bg_url.startswith('https://raw.githubusercontent.com/YOUR_USERNAME')
     
     if use_custom_bg:
         bg_css = f"""
         <style>
-            /* Background Images */
             .stApp {{
-                background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('{desktop_bg_url}');
+                background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{desktop_bg_url}');
                 background-size: cover;
                 background-position: center;
                 background-repeat: no-repeat;
@@ -36,17 +34,15 @@ def apply_background_css(desktop_bg_url, mobile_bg_url):
                 min-height: 100vh;
             }}
             
-            /* Mobile Background */
             @media (max-width: 768px) {{
                 .stApp {{
-                    background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('{mobile_bg_url}');
+                    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{mobile_bg_url}');
                     background-attachment: scroll;
                 }}
             }}
         </style>
         """
     else:
-        # Fallback gradient background
         bg_css = """
         <style>
             .stApp {
@@ -58,86 +54,87 @@ def apply_background_css(desktop_bg_url, mobile_bg_url):
     
     st.markdown(bg_css, unsafe_allow_html=True)
 
-# Apply custom CSS for card styling
+# Apply custom CSS for glassmorphism
 def apply_custom_css():
     st.markdown("""
     <style>
-        /* Hide Streamlit branding */
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
         
-        /* Card Styles */
-        .scorecard {
-            padding: 1.5rem;
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            margin-bottom: 1rem;
+        /* Glassmorphism cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1.25rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
             color: white;
-            transition: transform 0.3s;
+            transition: all 0.3s ease;
         }
         
-        .scorecard:hover {
-            transform: scale(1.05);
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.3);
         }
         
-        .gold-card {
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-        }
-        
-        .silver-card {
-            background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
-        }
-        
-        .bronze-card {
-            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-        }
-        
-        .other-card {
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-            color: #1e40af;
-            border: 2px solid #93c5fd;
-        }
-        
-        .carrier-header {
-            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+        .carrier-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
             padding: 1.5rem;
-            border-radius: 1rem;
-            color: white;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .rank-badge {
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.875rem;
         }
         
         .crew-name {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0.5rem 0 0.25rem 0;
         }
         
         .crew-id {
-            font-size: 0.875rem;
-            opacity: 0.9;
-            margin-bottom: 1rem;
+            font-size: 0.8rem;
+            opacity: 0.8;
         }
         
         .sales-value {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-top: 1rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-top: 0.75rem;
         }
         
         .sales-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
+            opacity: 0.7;
             letter-spacing: 0.05em;
-            opacity: 0.9;
         }
         
-        /* Responsive adjustments */
+        h1, h2, h3 {
+            color: white !important;
+        }
+        
         @media (max-width: 768px) {
-            .scorecard {
+            .glass-card {
                 padding: 1rem;
             }
             .crew-name {
-                font-size: 1.2rem;
+                font-size: 1rem;
             }
             .sales-value {
                 font-size: 1.5rem;
@@ -147,7 +144,7 @@ def apply_custom_css():
     """, unsafe_allow_html=True)
 
 # --- Load CSV Data ---
-@st.cache_data(ttl=300)  # Cache for 5 minutes
+@st.cache_data(ttl=300)
 def load_csv_from_github(url):
     try:
         response = requests.get(url)
@@ -160,36 +157,48 @@ def load_csv_from_github(url):
 
 # --- Process Data ---
 def process_sales_data(df):
-    # Aggregate sales by Crew and Airline
     aggregated = df.groupby(['Airline_Code', 'Crew_ID', 'Crew_Name']).agg({
         'crew_sold_quantity': 'sum'
     }).reset_index()
     
-    # Sort by sales within each carrier
     aggregated = aggregated.sort_values(['Airline_Code', 'crew_sold_quantity'], ascending=[True, False])
     
     return aggregated
 
-# --- Render Scorecard ---
-def render_scorecard(rank, crew_name, crew_id, sales, card_type='other'):
+# --- Render Top 3 Scorecard ---
+def render_top_scorecard(rank, crew_name, crew_id, sales):
     medals = {1: '🥇', 2: '🥈', 3: '🥉'}
     medal = medals.get(rank, '')
     
-    card_classes = {
-        'gold': 'gold-card',
-        'silver': 'silver-card',
-        'bronze': 'bronze-card',
-        'other': 'other-card'
-    }
-    
     card_html = f"""
-    <div class="scorecard {card_classes.get(card_type, 'other-card')}">
-        <div style="font-size: 2.5rem; margin-bottom: 1rem;">{medal}</div>
-        <div class="crew-name">{crew_name}</div>
-        <div class="crew-id">ID: {crew_id}</div>
-        <div class="sales-label">Total Sales</div>
-        <div class="sales-value">{sales:,}</div>
-        <div style="font-size: 0.75rem; margin-top: 0.5rem;">bottles sold</div>
+    <div class="glass-card">
+        <div style="text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">{medal}</div>
+            <div class="crew-name">{crew_name}</div>
+            <div class="crew-id">{crew_id}</div>
+            <div class="sales-label" style="margin-top: 0.75rem;">Total Sales</div>
+            <div class="sales-value">{sales:,}</div>
+        </div>
+    </div>
+    """
+    
+    return card_html
+
+# --- Render Other Scorecard ---
+def render_other_scorecard(rank, crew_name, crew_id, sales):
+    card_html = f"""
+    <div class="glass-card">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+            <span class="rank-badge">{rank}</span>
+            <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{crew_name}</div>
+                <div style="font-size: 0.75rem; opacity: 0.75;">{crew_id}</div>
+            </div>
+        </div>
+        <div style="text-align: right; margin-top: 0.5rem;">
+            <div style="font-size: 1.25rem; font-weight: 700;">{sales:,}</div>
+            <div style="font-size: 0.7rem; opacity: 0.7;">bottles</div>
+        </div>
     </div>
     """
     
@@ -197,119 +206,82 @@ def render_scorecard(rank, crew_name, crew_id, sales, card_type='other'):
 
 # --- Main App ---
 def main():
-    # Apply styling
     apply_background_css(DESKTOP_BG_URL, MOBILE_BG_URL)
     apply_custom_css()
     
     # Header
     st.markdown("""
-    <div style='text-align: center; padding: 2rem 0; color: white;'>
-        <h1 style='font-size: 3rem; font-weight: bold; margin-bottom: 0.5rem;'>
-            🚀 Flight Crew Prize Pool
+    <div style='text-align: center; padding: 2rem 0 1rem 0;'>
+        <h1 style='font-size: 2.5rem; font-weight: 700; margin-bottom: 0.25rem;'>
+            Flight Crew Prize Pool
         </h1>
-        <p style='font-size: 1.1rem; opacity: 0.9;'>Track top performers across all carriers</p>
+        <p style='font-size: 1rem; opacity: 0.85; color: white;'>Top Performers</p>
     </div>
     """, unsafe_allow_html=True)
     
     # Load data
-    with st.spinner('Loading data from GitHub...'):
-        df, error = load_csv_from_github(CSV_URL)
+    df, error = load_csv_from_github(CSV_URL)
     
     if error:
-        st.error(f"❌ Error loading CSV: {error}")
-        st.info(f"CSV URL: {CSV_URL}")
-        if st.button("🔄 Retry"):
-            st.rerun()
+        st.error(f"Error loading data: {error}")
         return
     
     if df is None or df.empty:
-        st.warning("⚠️ No data available. Please check your CSV file.")
+        st.warning("No data available")
         return
-    
-    # Add refresh button
-    col1, col2, col3 = st.columns([1, 1, 1])
-    with col2:
-        if st.button("🔄 Refresh Data", use_container_width=True):
-            st.cache_data.clear()
-            st.rerun()
-    
-    st.markdown("<br>", unsafe_allow_html=True)
     
     # Process data
     processed_df = process_sales_data(df)
-    
-    # Get unique carriers
     carriers = processed_df['Airline_Code'].unique()
     
-    # Display data for each carrier
+    # Display each carrier
     for carrier in carriers:
         carrier_data = processed_df[processed_df['Airline_Code'] == carrier].reset_index(drop=True)
         
-        # Carrier Header
         st.markdown(f"""
-        <div class="carrier-header">
-            <h2 style='font-size: 2rem; font-weight: bold; margin: 0;'>✈️ {carrier}</h2>
-            <p style='margin: 0; opacity: 0.9;'>Top Performers</p>
+        <div class="carrier-section">
+            <h2 style='font-size: 1.5rem; font-weight: 600; margin: 0 0 1.25rem 0;'>✈️ {carrier}</h2>
         </div>
         """, unsafe_allow_html=True)
         
-        # Top 3 Scorecards
+        # Top 3 in one row
         if len(carrier_data) >= 1:
             top_3 = carrier_data.head(3)
-            card_types = ['gold', 'silver', 'bronze']
+            cols = st.columns(3)
             
-            cols = st.columns(min(3, len(top_3)))
             for idx, (_, row) in enumerate(top_3.iterrows()):
                 with cols[idx]:
-                    card_html = render_scorecard(
+                    card_html = render_top_scorecard(
                         rank=idx + 1,
                         crew_name=row['Crew_Name'],
                         crew_id=row['Crew_ID'],
-                        sales=int(row['crew_sold_quantity']),
-                        card_type=card_types[idx]
+                        sales=int(row['crew_sold_quantity'])
                     )
                     st.markdown(card_html, unsafe_allow_html=True)
         
-        # Next 7 Performers
+        # Next 7 in grid
         if len(carrier_data) > 3:
-            st.markdown("<h3 style='color: white; margin-top: 2rem; margin-bottom: 1rem;'>📊 Other Top Performers</h3>", unsafe_allow_html=True)
+            st.markdown("<div style='height: 1.5rem;'></div>", unsafe_allow_html=True)
             
             next_7 = carrier_data.iloc[3:10]
             
-            # Create rows of 4 columns for better mobile display
-            rows = [next_7.iloc[i:i+4] for i in range(0, len(next_7), 4)]
-            
-            for row_data in rows:
-                cols = st.columns(min(4, len(row_data)))
+            # 4 columns for desktop, responsive for mobile
+            for i in range(0, len(next_7), 4):
+                row_data = next_7.iloc[i:i+4]
+                cols = st.columns(4)
+                
                 for idx, (_, crew) in enumerate(row_data.iterrows()):
                     with cols[idx]:
-                        rank = crew.name + 1  # crew.name is the index
-                        card_html = f"""
-                        <div class="scorecard other-card">
-                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                                <span style="background: #4f46e5; color: white; border-radius: 50%; width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.875rem;">
-                                    {rank}
-                                </span>
-                                <div style="font-weight: bold; font-size: 1.1rem; color: #1e40af; flex: 1; overflow: hidden; text-overflow: ellipsis;">
-                                    {crew['Crew_Name']}
-                                </div>
-                            </div>
-                            <div style="font-size: 0.75rem; color: #4b5563; margin-bottom: 0.5rem;">ID: {crew['Crew_ID']}</div>
-                            <div style="font-size: 1.5rem; font-weight: bold; color: #4f46e5;">{int(crew['crew_sold_quantity']):,}</div>
-                            <div style="font-size: 0.75rem; color: #6b7280;">bottles sold</div>
-                        </div>
-                        """
+                        rank = crew.name + 1
+                        card_html = render_other_scorecard(
+                            rank=rank,
+                            crew_name=crew['Crew_Name'],
+                            crew_id=crew['Crew_ID'],
+                            sales=int(crew['crew_sold_quantity'])
+                        )
                         st.markdown(card_html, unsafe_allow_html=True)
         
-        st.markdown("<br><br>", unsafe_allow_html=True)
-    
-    # Configuration note if using default background
-    if DESKTOP_BG_URL.startswith('https://raw.githubusercontent.com/YOUR_USERNAME'):
-        st.info("💡 **Tip:** Update `DESKTOP_BG_URL` and `MOBILE_BG_URL` in the code with your GitHub image URLs for custom backgrounds.")
+        st.markdown("<div style='height: 2rem;'></div>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
-
     main()
-
-
-
