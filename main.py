@@ -87,18 +87,47 @@ def apply_custom_css():
             background: rgba(255, 255, 255, 0.18);
         }
         
-        /* Podium ladder cards */
+        /* Podium cards */
         .podium-card {
             text-align: center;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
-            padding-bottom: 1.5rem;
+            justify-content: center;
+            align-items: center;
+            position: relative;
         }
         
-        .rank-1 { min-height: 280px; }
-        .rank-2 { min-height: 240px; }
-        .rank-3 { min-height: 200px; }
+        .rank-1 { 
+            min-height: 260px;
+            background: rgba(255, 215, 0, 0.15);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+        .rank-2 { 
+            min-height: 220px;
+            background: rgba(192, 192, 192, 0.15);
+            border: 2px solid rgba(192, 192, 192, 0.3);
+        }
+        .rank-3 { 
+            min-height: 180px;
+            background: rgba(205, 127, 50, 0.15);
+            border: 2px solid rgba(205, 127, 50, 0.3);
+        }
+        
+        .podium-rank {
+            position: absolute;
+            top: -15px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
         
         .other-card {
             min-height: 120px;
@@ -134,11 +163,16 @@ def apply_custom_css():
             .glass-card {
                 padding: 1.25rem;
             }
-            .rank-1 { min-height: 240px; }
-            .rank-2 { min-height: 200px; }
-            .rank-3 { min-height: 170px; }
+            .rank-1 { min-height: 220px; }
+            .rank-2 { min-height: 190px; }
+            .rank-3 { min-height: 160px; }
             .other-card {
                 min-height: 110px;
+            }
+            .podium-rank {
+                width: 36px;
+                height: 36px;
+                font-size: 1.1rem;
             }
         }
     </style>
@@ -215,41 +249,40 @@ def main():
             if len(top_3) >= 3:
                 # Create podium order: 2nd, 1st, 3rd
                 podium_order = [1, 0, 2]  # indices for 2nd, 1st, 3rd place
-                medals = ['🥇', '🥈', '🥉']
-                rank_classes = ['rank-1', 'rank-2', 'rank-3']
                 
-                # Display in 3 columns for ladder effect
+                # Display in 3 columns for podium effect
                 podium_cols = st.columns(3)
                 
                 for col_idx, rank_idx in enumerate(podium_order):
                     if rank_idx < len(top_3):
                         row = top_3.iloc[rank_idx]
+                        actual_rank = rank_idx + 1
+                        rank_class = f'rank-{actual_rank}'
+                        
                         with podium_cols[col_idx]:
                             st.markdown(f"""
-                            <div class="glass-card podium-card {rank_classes[rank_idx]}">
-                                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">{medals[rank_idx]}</div>
-                                <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem;">{row['Crew_Name']}</div>
-                                <div style="font-size: 0.75rem; opacity: 0.75; margin-bottom: 0.75rem;">{row['Crew_ID']}</div>
-                                <div style="font-size: 0.65rem; text-transform: uppercase; opacity: 0.65; letter-spacing: 0.05em;">Sales</div>
-                                <div style="font-size: 1.75rem; font-weight: 700;">{int(row['crew_sold_quantity']):,}</div>
+                            <div class="glass-card podium-card {rank_class}">
+                                <div class="podium-rank">{actual_rank}</div>
+                                <div style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; line-height: 1.3;">{row['Crew_Name']}</div>
+                                <div style="font-size: 0.7rem; text-transform: uppercase; opacity: 0.7; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Total Sales</div>
+                                <div style="font-size: 2rem; font-weight: 800;">{int(row['crew_sold_quantity']):,}</div>
                             </div>
                             """, unsafe_allow_html=True)
                 
-                st.markdown("<div style='height: 1.5rem;'></div>", unsafe_allow_html=True)
+                st.markdown("<div style='height: 2rem;'></div>", unsafe_allow_html=True)
             
             elif len(top_3) > 0:
                 # Fallback for less than 3 entries
-                medals = ['🥇', '🥈', '🥉']
-                rank_classes = ['rank-1', 'rank-2', 'rank-3']
-                
                 for idx, (_, row) in enumerate(top_3.iterrows()):
+                    actual_rank = idx + 1
+                    rank_class = f'rank-{actual_rank}'
+                    
                     st.markdown(f"""
-                    <div class="glass-card podium-card {rank_classes[idx]}">
-                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">{medals[idx]}</div>
-                        <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem;">{row['Crew_Name']}</div>
-                        <div style="font-size: 0.75rem; opacity: 0.75; margin-bottom: 0.75rem;">{row['Crew_ID']}</div>
-                        <div style="font-size: 0.65rem; text-transform: uppercase; opacity: 0.65; letter-spacing: 0.05em;">Sales</div>
-                        <div style="font-size: 1.75rem; font-weight: 700;">{int(row['crew_sold_quantity']):,}</div>
+                    <div class="glass-card podium-card {rank_class}">
+                        <div class="podium-rank">{actual_rank}</div>
+                        <div style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; line-height: 1.3;">{row['Crew_Name']}</div>
+                        <div style="font-size: 0.7rem; text-transform: uppercase; opacity: 0.7; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Total Sales</div>
+                        <div style="font-size: 2rem; font-weight: 800;">{int(row['crew_sold_quantity']):,}</div>
                     </div>
                     """, unsafe_allow_html=True)
                     st.markdown("<div style='height: 1rem;'></div>", unsafe_allow_html=True)
@@ -268,7 +301,6 @@ def main():
                             <span class="rank-badge">{rank}</span>
                             <div style="flex: 1; min-width: 0;">
                                 <div style="font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{crew['Crew_Name']}</div>
-                                <div style="font-size: 0.7rem; opacity: 0.7;">{crew['Crew_ID']}</div>
                             </div>
                         </div>
                         <div style="text-align: right; margin-top: 0.5rem;">
