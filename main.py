@@ -184,11 +184,15 @@ def load_csv_from_github(url):
     try:
         response = requests.get(url)
         response.raise_for_status()
+        
+        # Get last modified date from headers
+        last_modified = response.headers.get('Last-Modified', None)
+        
         csv_data = StringIO(response.text)
         df = pd.read_csv(csv_data)
-        return df, None
+        return df, last_modified, None
     except Exception as e:
-        return None, str(e)
+        return None, None, str(e)
 
 # --- Process Data ---
 def process_sales_data(df):
@@ -207,7 +211,7 @@ def main():
     
     # Header
     st.markdown("""
-    <div style='text-align: center; padding: 1.5rem 0 2rem 0;'>
+    <div style='text-align: center; padding: 1.5rem 0 0.5rem 0;'>
         <h1 style='font-size: 2.75rem; font-weight: 700; margin: 0;'>
             Airali : Crew Sales Performance
         </h1>
@@ -215,7 +219,7 @@ def main():
     """, unsafe_allow_html=True)
     
     # Load data
-    df, error = load_csv_from_github(CSV_URL)
+    df, last_modified, error = load_csv_from_github(CSV_URL)
     
     if error:
         st.error(f"Error: {error}")
@@ -224,6 +228,27 @@ def main():
     if df is None or df.empty:
         st.warning("No data available")
         return
+    
+    # Display last refreshed date
+    if last_modified:
+        from datetime import datetime
+        try:
+            # Parse the Last-Modified header
+            refresh_date = datetime.strptime(last_modified, '%a, %d %b %Y %H:%M:%S %Z')
+            formatted_date = refresh_date.strftime('%B %d, %Y at %I:%M %p UTC')
+        except:
+            formatted_date = last_modified
+    else:
+        from datetime import datetime
+        formatted_date = datetime.now().strftime('%B %d, %Y at %I:%M %p')
+    
+    st.markdown(f"""
+    <div style='text-align: center; padding: 0 0 2rem 0;'>
+        <p style='color: rgba(255, 255, 255, 0.75); font-size: 0.9rem; margin: 0;'>
+            Last refreshed: {formatted_date}
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Process data
     processed_df = process_sales_data(df)
