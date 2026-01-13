@@ -308,4 +308,5 @@ def main():
         st.info("💡 **Tip:** Update `DESKTOP_BG_URL` and `MOBILE_BG_URL` in the code with your GitHub image URLs for custom backgrounds.")
 
 if __name__ == "__main__":
+
     main()
